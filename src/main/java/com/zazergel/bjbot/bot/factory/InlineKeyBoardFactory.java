@@ -15,20 +15,20 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class InlineKeyBoardFactory {
-    public InlineKeyboardMarkup getKeyboardToStartMessage() {
+    public InlineKeyboardMarkup getKeyboardToMainMenuMessage() {
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
 
         InlineKeyboardButton startGameButton = new InlineKeyboardButton();
         startGameButton.setText("Раздавай!");
-        startGameButton.setCallbackData(Constants.startGameButton);
+        startGameButton.setCallbackData(Constants.START_GAME_BUTTON);
 
         InlineKeyboardButton rulesButton = new InlineKeyboardButton();
         rulesButton.setText("Правила");
-        rulesButton.setCallbackData(Constants.rulesButton);
+        rulesButton.setCallbackData(Constants.RULES_BUTTON);
 
         InlineKeyboardButton statisticButton = new InlineKeyboardButton();
         statisticButton.setText("Моя статистика");
-        statisticButton.setCallbackData(Constants.statisticButton);
+        statisticButton.setCallbackData(Constants.STATISTIC_BUTTON);
 
         List<InlineKeyboardButton> rowInLine = List.of(startGameButton, rulesButton, statisticButton);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);
@@ -43,7 +43,7 @@ public class InlineKeyBoardFactory {
 
         InlineKeyboardButton mainMenuButton = new InlineKeyboardButton();
         mainMenuButton.setText("В главное меню");
-        mainMenuButton.setCallbackData(Constants.mainMenuButton);
+        mainMenuButton.setCallbackData(Constants.MAIN_MENU_BUTTON);
 
         rowInLine.add(mainMenuButton);
         rowsInLine.add(rowInLine);
@@ -57,10 +57,10 @@ public class InlineKeyBoardFactory {
 
         InlineKeyboardButton takeButton = new InlineKeyboardButton();
         takeButton.setText("Беру");
-        takeButton.setCallbackData(Constants.takeButton);
+        takeButton.setCallbackData(Constants.TAKE_BUTTON);
         InlineKeyboardButton noButton = new InlineKeyboardButton();
         noButton.setText("Пас");
-        noButton.setCallbackData(Constants.noButton);
+        noButton.setCallbackData(Constants.NO_BUTTON);
 
         List<InlineKeyboardButton> rowInLine = List.of(takeButton, noButton);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);

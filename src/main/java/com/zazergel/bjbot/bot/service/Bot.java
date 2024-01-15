@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -73,60 +74,58 @@ public class Bot extends TelegramLongPollingBot {
         if (msg.equals("/start")) {
             checkStatsSession(chatId);
             sendMessage(chatId, "Здравствуйте, " + username + ".", null);
-            sendMessage(chatId, "Главное меню:", inlineKeyBoardFactory.getKeyboardToStartMessage());
+            sendMessage(chatId, "Главное меню:", inlineKeyBoardFactory.getKeyboardToMainMenuMessage());
         }
         deleteMessage(chatId, messageId);
     }
-
 
     private void onUpdateReceivedCallbackQuery(Update update) {
         String callBackData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-        if (callBackData.equals(Constants.rulesButton)) {
-            InlineKeyboardMarkup keyboard = inlineKeyBoardFactory.getKeyboardToBackMessage();
-            sendEditMessage(chatId, Constants.rules, messageId, keyboard);
-        }
-        if (callBackData.equals(Constants.statisticButton)) {
-            Map<Integer, Integer> playerStat = checkStatsSession(chatId);
-            String text = " Ваша статистика:\n" +
-                          "Побед: " + playerStat.get(0) + "\n" +
-                          "Поражений: " + playerStat.get(1) + "\n" +
-                          "Ничьих: " + playerStat.get(2);
-            sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
-        }
-        if (callBackData.equals(Constants.startGameButton)) {
-            BlackJackGame game = saveGameSession(chatId);
-            game.dealInitialCards();
-            String text = game.play();
-            addStats(chatId, text);
-            if (text.contains("!")) {
-                sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
-            } else {
-                sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToChooseCard());
+        if (!statsRepo.getStatsMap().containsKey(update.getCallbackQuery().getMessage().getChatId())) {
+            sendEditMessage(chatId, Constants.REBOOT_PLEASE, messageId, null);
+        } else {
+            if (callBackData.equals(Constants.RULES_BUTTON)) {
+                InlineKeyboardMarkup keyboard = inlineKeyBoardFactory.getKeyboardToBackMessage();
+                sendEditMessage(chatId, Constants.RULES, messageId, keyboard);
             }
-        }
-        if (callBackData.equals(Constants.noButton)) {
-            BlackJackGame game = gamesRepo.getGames().get(chatId);
-            game.setNext(false);
-            String text = game.play();
-            addStats(chatId, text);
-            sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
-        }
-        if (callBackData.equals(Constants.takeButton)) {
-            BlackJackGame game = gamesRepo.getGames().get(chatId);
-            game.playerTakeCard();
-            String text = game.play();
-            addStats(chatId, text);
-            if (text.contains("!")) {
-                sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
-            } else {
-                sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToChooseCard());
+            if (callBackData.equals(Constants.STATISTIC_BUTTON)) {
+                sendEditMessage(chatId, getStats(chatId), messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
             }
-        }
-        if (callBackData.equals(Constants.mainMenuButton)) {
-            sendEditMessage(chatId, "Сыграем?", messageId, inlineKeyBoardFactory.getKeyboardToStartMessage());
+            if (callBackData.equals(Constants.START_GAME_BUTTON)) {
+                BlackJackGame game = saveGameSession(chatId);
+                game.dealInitialCards();
+                String text = game.play();
+                addStats(chatId, text);
+                if (text.contains("!")) {
+                    sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
+                } else {
+                    sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToChooseCard());
+                }
+            }
+            if (callBackData.equals(Constants.NO_BUTTON)) {
+                BlackJackGame game = gamesRepo.getGames().get(chatId);
+                game.setNext(false);
+                String text = game.play();
+                addStats(chatId, text);
+                sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
+            }
+            if (callBackData.equals(Constants.TAKE_BUTTON)) {
+                BlackJackGame game = gamesRepo.getGames().get(chatId);
+                game.playerTakeCard();
+                String text = game.play();
+                addStats(chatId, text);
+                if (text.contains("!")) {
+                    sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToBackMessage());
+                } else {
+                    sendEditMessage(chatId, text, messageId, inlineKeyBoardFactory.getKeyboardToChooseCard());
+                }
+            }
+            if (callBackData.equals(Constants.MAIN_MENU_BUTTON)) {
+                sendEditMessage(chatId, "Сыграем?", messageId, inlineKeyBoardFactory.getKeyboardToMainMenuMessage());
+            }
         }
     }
 
@@ -134,12 +133,13 @@ public class Bot extends TelegramLongPollingBot {
         SendMessage message = SendMessage.builder()
                 .chatId(chatId)
                 .text(text)
+                .parseMode(ParseMode.HTML)
                 .replyMarkup(keyboard)
                 .build();
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error(Constants.exceptionOccur + e.getMessage());
+            log.error(Constants.EXCEPTION_OCCURRED + e.getMessage());
         }
     }
 
@@ -148,12 +148,13 @@ public class Bot extends TelegramLongPollingBot {
                 .chatId(String.valueOf(chatId))
                 .messageId(messageId)
                 .text(text)
+                .parseMode(ParseMode.HTML)
                 .replyMarkup(keyboard)
                 .build();
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error(Constants.exceptionOccur + e.getMessage());
+            log.error(Constants.EXCEPTION_OCCURRED + e.getMessage());
         }
     }
 
@@ -164,7 +165,7 @@ public class Bot extends TelegramLongPollingBot {
         try {
             execute(deleteMessage);
         } catch (TelegramApiException e) {
-            log.error(Constants.exceptionOccur + e.getMessage());
+            log.error(Constants.EXCEPTION_OCCURRED + e.getMessage());
         }
     }
 
@@ -199,6 +200,14 @@ public class Bot extends TelegramLongPollingBot {
             statsRepo.getStatsMap().get(chatId).put(2, draws);
         }
 
+    }
+
+    private String getStats(long chatId) {
+        Map<Integer, Integer> playerStat = checkStatsSession(chatId);
+        return "<b>Ваша статистика</b>:\n" +
+               "Побед: " + playerStat.get(0) + "\n" +
+               "Поражений: " + playerStat.get(1) + "\n" +
+               "Ничьих: " + playerStat.get(2);
     }
 }
 

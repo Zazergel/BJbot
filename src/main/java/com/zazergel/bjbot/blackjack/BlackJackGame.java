@@ -40,25 +40,28 @@ public class BlackJackGame {
 
 
     public String play() {
+        //Проверка на выпадение Блекджека вначале партии
         if (player.getHand().getScore() == 21 && player.getHand().getSizeOfHand() == 2) {
             next = true;
-            return showHandsOnEndGame() + "\n\nУ вас Блекджек! Вы выиграли!";
+            return showHandsOnEndGame() + "\n\nУ вас <b>Блекджек!</b> Вы выиграли!";
         } else if (dealer.getHand().getScore() == 21 && dealer.getHand().getSizeOfHand() == 2) {
             next = true;
-            return showHandsOnEndGame() + "\n\nУ меня Блекджек! Вы проиграли!";
+            return showHandsOnEndGame() + "\n\nУ меня <b>Блекджек!</b> Вы проиграли!";
         }
-        // Игрок может взять карту, если у него меньше 17 очков
-        if (player.getHand().getScore() < 17 && next) {
+        // Игрок может взять карту, если у него меньше 21 очков
+        if (player.getHand().getScore() < 21 && next) {
             return showHands() + "\n\nБерете еще карту?";
         }
-
-        // Дилер берет карту, если у него меньше, чем у игрока, но не более 21
+        // Дилер берет карту, если у него меньше, чем у игрока, но не более 17
         if (player.getHand().getScore() < 21) {
-            while (dealer.getHand().getScore() < player.getHand().getScore() && dealer.getHand().getScore() < 22) {
+            while (dealer.getHand().getScore() < player.getHand().getScore() && dealer.getHand().getScore() < 18) {
                 dealer.getHand().addCard(deck.dealCard());
             }
         }
+        return checkWinner();
+    }
 
+    private String checkWinner() {
         int playerScore = player.getHand().getScore();
         int dealerScore = dealer.getHand().getScore();
 
