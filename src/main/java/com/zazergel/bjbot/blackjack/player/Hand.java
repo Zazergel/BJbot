@@ -1,4 +1,4 @@
-package com.zazergel.bjbot.blackjack;
+package com.zazergel.bjbot.blackjack.player;
 
 import com.zazergel.bjbot.blackjack.deck.Card;
 import org.springframework.stereotype.Component;

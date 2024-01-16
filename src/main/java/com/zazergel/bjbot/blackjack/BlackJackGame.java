@@ -42,10 +42,8 @@ public class BlackJackGame {
     public String play() {
         //Проверка на выпадение Блекджека вначале партии
         if (player.getHand().getScore() == 21 && player.getHand().getSizeOfHand() == 2) {
-            next = true;
             return showHandsOnEndGame() + "\n\nУ вас <b>Блекджек!</b> Вы выиграли!";
         } else if (dealer.getHand().getScore() == 21 && dealer.getHand().getSizeOfHand() == 2) {
-            next = true;
             return showHandsOnEndGame() + "\n\nУ меня <b>Блекджек!</b> Вы проиграли!";
         }
         // Игрок может взять карту, если у него меньше 21 очков
@@ -66,13 +64,10 @@ public class BlackJackGame {
         int dealerScore = dealer.getHand().getScore();
 
         if (playerScore <= 21 && (playerScore > dealerScore || dealerScore > 21)) {
-            next = true;
             return showHandsOnEndGame() + "\n\nВы выиграли!";
         } else if (playerScore <= 21 && (playerScore == dealerScore)) {
-            next = true;
             return showHandsOnEndGame() + "\n\nНичья!";
         } else {
-            next = true;
             return showHandsOnEndGame() + "\n\nВы проиграли!";
         }
     }

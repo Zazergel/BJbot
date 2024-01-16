@@ -1,6 +1,6 @@
 package com.zazergel.bjbot.bot.config;
 
-import com.zazergel.bjbot.bot.service.Bot;
+import com.zazergel.bjbot.bot.Bot;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -23,7 +23,7 @@ public class BotInitializer {
         try {
             telegramBotsApi.registerBot(bot);
         } catch (TelegramApiException e) {
-            log.error("The init process was error with message: " + e.getMessage());
+            log.error("The init process was error with message: " + e.getLocalizedMessage());
         }
     }
 }
