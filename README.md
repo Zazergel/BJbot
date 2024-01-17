@@ -21,8 +21,6 @@
 * [About the Project](#about-the-project)
 * [Features](#features)
 * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Installation](#installation)
 * [Authors](#authors)
 
 ## About The Project
@@ -42,32 +40,6 @@
 <p align="left">
     <img src="https://skillicons.dev/icons?i=java,maven,spring" />
 </p>
-
-## Getting Started
-
-Чтобы установить и запустить Bjbot на своем компьютере, выполните следующие шаги:
-
-1. Убедитесь, что на вашей системе установлена Java Development Kit (JDK) версии 17 или выше. 
-
-### Installation
-
-1. Клонируйте репозиторий
-
-```sh
-git clone https://github.com/Zazergel/bjbot.git
-```
-Или скачайте ZIP-архив.
-
-2. Откройте проект в вашей любимой интегрированной среде разработки (IDE).
-3. Соберите и запустите проект c помощью maven:
-
-```sh
-maven clean package
-
-```
-5. Запустите проект.
-6. Откройте приложение Telegram на любом вашем устройстве и найдите бота по его имени: @BJ_Cardgame_bot
-7. В диалоге с ботом - следуйте подсказкам в описании. 
 
 ## Authors
 
