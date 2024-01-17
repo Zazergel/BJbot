@@ -1,11 +1,13 @@
 package com.zazergel.bjbot.blackjack.player;
 
-import com.zazergel.bjbot.blackjack.Hand;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 @Component
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
 public class Player {
-    private final Hand hand = new Hand();
+    Hand hand = new Hand();
 }
