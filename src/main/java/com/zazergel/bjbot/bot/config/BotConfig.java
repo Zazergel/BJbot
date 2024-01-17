@@ -18,4 +18,6 @@ public class BotConfig {
     String botName;
     @Value("${bot.key}")
     String botKey;
+    @Value("${bot.path}")
+    String botPath;
 }

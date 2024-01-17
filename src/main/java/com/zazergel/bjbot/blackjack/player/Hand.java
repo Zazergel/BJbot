@@ -1,14 +1,17 @@
 package com.zazergel.bjbot.blackjack.player;
 
 import com.zazergel.bjbot.blackjack.deck.Card;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Hand {
-    private final List<Card> cards = new ArrayList<>();
+    List<Card> cards = new ArrayList<>();
 
     public void addCard(Card card) {
         cards.add(card);

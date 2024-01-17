@@ -3,6 +3,8 @@ package com.zazergel.bjbot.bot.service;
 import com.zazergel.bjbot.blackjack.BlackJackGame;
 import com.zazergel.bjbot.blackjack.repo.GameSessionRepo;
 import com.zazergel.bjbot.blackjack.repo.PlayerStatsRepo;
+import com.zazergel.bjbot.bot.Bot;
+import com.zazergel.bjbot.bot.config.Buttons;
 import com.zazergel.bjbot.bot.config.Constants;
 import com.zazergel.bjbot.bot.factory.KeyboardFactory;
 import lombok.AccessLevel;
@@ -10,7 +12,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +30,6 @@ public class BlackJackGameService {
     final PlayerStatsRepo playerStatsRepo;
     final GameSessionRepo gameSessionRepo;
 
-    MessageService messageService;
 
     @Autowired
     public BlackJackGameService(PlayerStatsRepo playerStatsRepo, GameSessionRepo gameSessionRepo) {
@@ -30,62 +37,71 @@ public class BlackJackGameService {
         this.playerStatsRepo = playerStatsRepo;
     }
 
-    public void initGameSession(MessageService messageService, long chatId) {
-        this.messageService = messageService;
+    public BotApiMethod<?> receivedButton(CallbackQuery callbackQuery, Bot bot) {
+        String callBackData = callbackQuery.getData();
+        int messageId = callbackQuery.getMessage().getMessageId();
+        long chatId = callbackQuery.getMessage().getChatId();
+
         checkStatsSession(chatId);
-    }
 
-    public void receivedButton(Update update) {
-        String callBackData = update.getCallbackQuery().getData();
-        int messageId = update.getCallbackQuery().getMessage().getMessageId();
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
-
-        if (callBackData.equals(Constants.BJ_RULES_BUTTON)) {
-            messageService.sendEditMessage(chatId, Constants.RULES, messageId,
+        if (callBackData.equals(Buttons.BJ_RULES_BUTTON)) {
+            return sendEditMessage(chatId, Constants.RULES, messageId,
                     KeyboardFactory.getKeyboardToBackMessage());
         }
-        if (callBackData.equals(Constants.BJ_STATISTIC_BUTTON)) {
-            messageService.sendEditMessage(chatId, getStats(chatId), messageId,
+        if (callBackData.equals(Buttons.BJ_STATISTIC_BUTTON)) {
+            return sendEditMessage(chatId, getStats(chatId), messageId,
                     KeyboardFactory.getKeyboardToBackMessage());
         }
-        if (callBackData.equals(Constants.BJ_START_GAME_BUTTON)) {
+        if (callBackData.equals(Buttons.BJ_START_GAME_BUTTON)) {
             BlackJackGame game = saveGameSession(chatId);
             game.dealInitialCards();
             String text = game.play();
             addStats(chatId, text);
             if (text.contains("!")) {
-                messageService.sendEditMessage(chatId, text, messageId,
-                        KeyboardFactory.getKeyboardToBackMessage());
+                try {
+                    bot.execute(sendEditMessage(chatId, text, messageId, null));
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
+                return sendMainMenuMessage(chatId);
             } else {
-                messageService.sendEditMessage(chatId, text, messageId,
+                return sendEditMessage(chatId, text, messageId,
                         KeyboardFactory.getKeyboardToChooseCard());
             }
         }
-        if (callBackData.equals(Constants.BJ_NO_BUTTON)) {
+        if (callBackData.equals(Buttons.BJ_NO_BUTTON)) {
             BlackJackGame game = gameSessionRepo.getGames().get(chatId);
             game.setNext(false);
             String text = game.play();
             addStats(chatId, text);
-            messageService.sendEditMessage(chatId, text, messageId,
-                    KeyboardFactory.getKeyboardToBackMessage());
+            try {
+                bot.execute(sendEditMessage(chatId, text, messageId, null));
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+            return sendMainMenuMessage(chatId);
         }
-        if (callBackData.equals(Constants.BJ_TAKE_BUTTON)) {
+        if (callBackData.equals(Buttons.BJ_TAKE_BUTTON)) {
             BlackJackGame game = gameSessionRepo.getGames().get(chatId);
             game.playerTakeCard();
             String text = game.play();
             addStats(chatId, text);
             if (text.contains("!")) {
-                messageService.sendEditMessage(chatId, text, messageId,
-                        KeyboardFactory.getKeyboardToBackMessage());
+                try {
+                    bot.execute(sendEditMessage(chatId, text, messageId, null));
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
+                return sendMainMenuMessage(chatId);
             } else {
-                messageService.sendEditMessage(chatId, text, messageId,
-                        KeyboardFactory.getKeyboardToChooseCard());
+                return sendEditMessage(chatId, text, messageId, KeyboardFactory.getKeyboardToChooseCard());
             }
         }
-        if (callBackData.equals(Constants.BJ_MAIN_MENU_BUTTON)) {
-            messageService.sendEditMessage(chatId, "Сыграем?", messageId,
+        if (callBackData.equals(Buttons.BJ_MAIN_MENU_BUTTON)) {
+            return sendEditMessage(chatId, "Играем?", messageId,
                     KeyboardFactory.getKeyboardToMainMenuMessage());
         }
+        return null;
     }
 
     private BlackJackGame saveGameSession(long chatId) {
@@ -96,11 +112,11 @@ public class BlackJackGameService {
     private Map<Integer, Integer> checkStatsSession(long chatId) {
         if (!playerStatsRepo.getStatsMap().containsKey(chatId)) {
             log.info("StatsSession was init for chatId: " + chatId);
-
             Map<Integer, Integer> playerStat = new HashMap<>();
             playerStat.put(0, 0);
             playerStat.put(1, 0);
             playerStat.put(2, 0);
+            playerStat.put(3, 0);
             playerStatsRepo.getStatsMap().put(chatId, playerStat);
         }
         return playerStatsRepo.getStatsMap().get(chatId);
@@ -109,19 +125,24 @@ public class BlackJackGameService {
     private void addStats(long chatId, String text) {
         String logText = "User from chatId: " + chatId;
         if (text.contains("выиграли!")) {
+            if (text.contains("Блекджек")) {
+                int winsBj = playerStatsRepo.getStatsMap().get(chatId).get(1);
+                winsBj++;
+                playerStatsRepo.getStatsMap().get(chatId).put(1, winsBj);
+            }
             int wins = playerStatsRepo.getStatsMap().get(chatId).get(0);
             wins++;
             playerStatsRepo.getStatsMap().get(chatId).put(0, wins);
             log.info(logText + " - win!");
         } else if (text.contains("проиграли!")) {
-            int loses = playerStatsRepo.getStatsMap().get(chatId).get(1);
+            int loses = playerStatsRepo.getStatsMap().get(chatId).get(2);
             loses++;
-            playerStatsRepo.getStatsMap().get(chatId).put(1, loses);
+            playerStatsRepo.getStatsMap().get(chatId).put(2, loses);
             log.info(logText + " - lose!");
         } else if (text.contains("Ничья!")) {
-            int draws = playerStatsRepo.getStatsMap().get(chatId).get(2);
+            int draws = playerStatsRepo.getStatsMap().get(chatId).get(3);
             draws++;
-            playerStatsRepo.getStatsMap().get(chatId).put(2, draws);
+            playerStatsRepo.getStatsMap().get(chatId).put(3, draws);
             log.info(logText + " - draw!");
         }
 
@@ -130,9 +151,32 @@ public class BlackJackGameService {
     private String getStats(long chatId) {
         Map<Integer, Integer> playerStat = checkStatsSession(chatId);
         return "<b>Ваша статистика</b>:\n" +
-               "Побед: " + playerStat.get(0) + "\n" +
-               "Поражений: " + playerStat.get(1) + "\n" +
-               "Ничьих: " + playerStat.get(2);
+               "Побед всего: " + playerStat.get(0) + "\n" +
+               "Блекджеком: " + playerStat.get(1) + "\n\n" +
+               "Поражений: " + playerStat.get(2) + "\n" +
+               "Ничьих: " + playerStat.get(3);
+    }
+
+
+    private EditMessageText sendEditMessage(long chatId, String text, int messageId,
+                                            InlineKeyboardMarkup keyboard) {
+        return EditMessageText.builder()
+                .chatId(String.valueOf(chatId))
+                .messageId(messageId)
+                .text(text)
+                .parseMode(ParseMode.HTML)
+                .replyMarkup(keyboard)
+                .build();
+    }
+
+    private SendMessage sendMainMenuMessage(long chatId) {
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text("Сыграем?")
+                .parseMode(ParseMode.HTML)
+                .replyMarkup(KeyboardFactory.getKeyboardToMainMenuMessage())
+                .build();
     }
 }
+
 

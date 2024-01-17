@@ -4,25 +4,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Constants {
-
-    public static final String BJ_START_GAME_BUTTON = "BJ_START_GAME_BUTTON";
-    public static final String BJ_RULES_BUTTON = "BJ_RULES_BUTTON";
-    public static final String BJ_STATISTIC_BUTTON = "BJ_STATISTIC_BUTTON";
-    public static final String BJ_MAIN_MENU_BUTTON = "BJ_MAIN_MENU_BUTTON";
-    public static final String BJ_TAKE_BUTTON = "BJ_TAKE_BUTTON";
-    public static final String BJ_NO_BUTTON = "BJ_NO_BUTTON";
-    public static final String EXCEPTION_OCCURRED = "Exception occurred: ";
-
     public static final String RULES = """
             <b>Упрощенные правила</b>
             • В игре участвует 2 колоды по 52 карты. В начале игры я раздам вам две карты в открытую, а себе одну открытую и одну закрытую карту.
             • После раздачи, сравниваются значения наших рук. Пока у вас на руке меньше 21 очка, вы можете взять еще карту, если захотите.
+            • Если моя рука менее 17 очков, я также могу добирать карты.
             • Ваша цель - набрать больше очков, но не более 21, иначе вы проигрываете.
             • Победит тот, у кого наберется больше очков. Если суммы очков равны <i>(кроме Блэкджека)</i>, то это ничья.
             • Если первые две карты на руке после раздачи дают 21 очко - это <b>Блэкджек</b>. Тот, кто первый его собрал - побеждает. Если мы оба его собрали - ничья.
             """;
-
-    public static final String REBOOT_PLEASE = "Похоже, что-то пошло не так, пожалуйста, используйте <i>/start</i> для перезапуска игровой сессии.";
 
     private Constants() {
     }

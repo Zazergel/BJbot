@@ -38,7 +38,6 @@ public class BlackJackGame {
         player.getHand().addCard(deck.dealCard());
     }
 
-
     public String play() {
         //Проверка на выпадение Блекджека вначале партии
         if (player.getHand().getScore() == 21 && player.getHand().getSizeOfHand() == 2) {

@@ -1,5 +1,7 @@
 package com.zazergel.bjbot.blackjack.deck;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -7,8 +9,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 @Component
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Deck {
-    private final LinkedList<Card> cards;
+    LinkedList<Card> cards;
 
     @Autowired
     public Deck() {

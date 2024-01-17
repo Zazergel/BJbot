@@ -1,6 +1,6 @@
 package com.zazergel.bjbot.bot.factory;
 
-import com.zazergel.bjbot.bot.config.Constants;
+import com.zazergel.bjbot.bot.config.Buttons;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
@@ -17,18 +17,18 @@ public class KeyboardFactory {
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
 
         InlineKeyboardButton startGameButton = new InlineKeyboardButton();
-        startGameButton.setText("Раздавай!");
-        startGameButton.setCallbackData(Constants.BJ_START_GAME_BUTTON);
+        startGameButton.setText("🃏Раздавай!");
+        startGameButton.setCallbackData(Buttons.BJ_START_GAME_BUTTON);
 
         InlineKeyboardButton rulesButton = new InlineKeyboardButton();
-        rulesButton.setText("Правила");
-        rulesButton.setCallbackData(Constants.BJ_RULES_BUTTON);
+        rulesButton.setText("📃Правила");
+        rulesButton.setCallbackData(Buttons.BJ_RULES_BUTTON);
 
         InlineKeyboardButton statisticButton = new InlineKeyboardButton();
-        statisticButton.setText("Моя статистика");
-        statisticButton.setCallbackData(Constants.BJ_STATISTIC_BUTTON);
+        statisticButton.setText("📈Статистика");
+        statisticButton.setCallbackData(Buttons.BJ_STATISTIC_BUTTON);
 
-        List<InlineKeyboardButton> rowInLine = List.of(startGameButton, rulesButton, statisticButton);
+        List<InlineKeyboardButton> rowInLine = List.of(rulesButton, startGameButton, statisticButton);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);
         markupInLine.setKeyboard(rowsInLine);
         return markupInLine;
@@ -41,7 +41,7 @@ public class KeyboardFactory {
 
         InlineKeyboardButton mainMenuButton = new InlineKeyboardButton();
         mainMenuButton.setText("В главное меню");
-        mainMenuButton.setCallbackData(Constants.BJ_MAIN_MENU_BUTTON);
+        mainMenuButton.setCallbackData(Buttons.BJ_MAIN_MENU_BUTTON);
 
         rowInLine.add(mainMenuButton);
         rowsInLine.add(rowInLine);
@@ -54,11 +54,11 @@ public class KeyboardFactory {
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
 
         InlineKeyboardButton takeButton = new InlineKeyboardButton();
-        takeButton.setText("Беру");
-        takeButton.setCallbackData(Constants.BJ_TAKE_BUTTON);
+        takeButton.setText("✅Беру");
+        takeButton.setCallbackData(Buttons.BJ_TAKE_BUTTON);
         InlineKeyboardButton noButton = new InlineKeyboardButton();
-        noButton.setText("Пас");
-        noButton.setCallbackData(Constants.BJ_NO_BUTTON);
+        noButton.setText("❌Пас");
+        noButton.setCallbackData(Buttons.BJ_NO_BUTTON);
 
         List<InlineKeyboardButton> rowInLine = List.of(takeButton, noButton);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);

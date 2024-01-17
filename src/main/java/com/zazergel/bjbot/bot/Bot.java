@@ -1,37 +1,31 @@
 package com.zazergel.bjbot.bot;
 
 import com.zazergel.bjbot.bot.config.BotConfig;
-import com.zazergel.bjbot.bot.controller.UpdateController;
-import com.zazergel.bjbot.bot.service.MessageService;
-import jakarta.annotation.PostConstruct;
+import com.zazergel.bjbot.bot.service.UpdateDispatcher;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.bots.TelegramWebhookBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class Bot extends TelegramLongPollingBot {
+public class Bot extends TelegramWebhookBot {
 
     BotConfig config;
-    UpdateController updateController;
-    MessageService messageService;
+    UpdateDispatcher updateDispatcher;
 
 
     @Autowired
-    public Bot(BotConfig config, UpdateController updateController, MessageService messageService) {
+    public Bot(BotConfig config, UpdateDispatcher updateDispatcher) {
+        super(config.getBotKey());
         this.config = config;
-        this.updateController = updateController;
-        this.messageService = messageService;
-    }
+        this.updateDispatcher = updateDispatcher;
 
-    @PostConstruct
-    public void init() {
-        messageService.registerBot(this);
     }
 
     @Override
@@ -39,15 +33,15 @@ public class Bot extends TelegramLongPollingBot {
         return config.getBotName();
     }
 
+
     @Override
-    public String getBotToken() {
-        return config.getBotKey();
+    public String getBotPath() {
+        return config.getBotPath();
     }
 
     @Override
-    public void onUpdateReceived(Update update) {
-        updateController.checkUpdate(update);
-
+    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+        return updateDispatcher.distribute(update, this);
     }
 }
 
