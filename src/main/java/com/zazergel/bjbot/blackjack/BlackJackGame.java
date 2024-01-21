@@ -6,10 +6,7 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
 public class BlackJackGame {
@@ -19,7 +16,6 @@ public class BlackJackGame {
     @Setter
     boolean next;
 
-    @Autowired
     public BlackJackGame() {
         deck = new Deck();
         player = new Player();
@@ -41,9 +37,9 @@ public class BlackJackGame {
     public String play() {
         //Проверка на выпадение Блекджека вначале партии
         if (player.getHand().getScore() == 21 && player.getHand().getSizeOfHand() == 2) {
-            return showHandsOnEndGame() + "\n\nУ вас <b>Блекджек!</b> Вы выиграли!";
+            return showHandsOnEndGame() + "\n\nУ вас <b>Блэкджек!</b> Вы выиграли!";
         } else if (dealer.getHand().getScore() == 21 && dealer.getHand().getSizeOfHand() == 2) {
-            return showHandsOnEndGame() + "\n\nУ меня <b>Блекджек!</b> Вы проиграли!";
+            return showHandsOnEndGame() + "\n\nУ меня <b>Блэкджек!</b> Вы проиграли!";
         }
         // Игрок может взять карту, если у него меньше 21 очков
         if (player.getHand().getScore() < 21 && next) {
