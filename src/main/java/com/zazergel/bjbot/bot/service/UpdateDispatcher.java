@@ -22,6 +22,7 @@ public class UpdateDispatcher {
     CallbackQueryHandler callbackQueryHandler;
     CommandHandler commandHandler;
 
+
     @Autowired
     public UpdateDispatcher(MessageHandler messageHandler,
                             CallbackQueryHandler callbackQueryHandler,
@@ -33,13 +34,14 @@ public class UpdateDispatcher {
 
     public BotApiMethod<?> distribute(Update update, Bot bot) {
         if (update.hasCallbackQuery()) {
-            return callbackQueryHandler.answer(update.getCallbackQuery(), bot);
+            return callbackQueryHandler.sendAnswer(update.getCallbackQuery(), bot);
         } else if (update.hasMessage()) {
             Message message = update.getMessage();
             if (message.hasText() && (message.getText().startsWith("/"))) {
                 return commandHandler.answer(update.getMessage(), bot);
+            } else {
+                return messageHandler.answer(message);
             }
-            return messageHandler.answer(message);
         }
         log.info("Unsupported update: " + update);
         return null;
