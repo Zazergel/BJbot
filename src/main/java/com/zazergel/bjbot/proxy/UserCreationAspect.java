@@ -54,6 +54,7 @@ public class UserCreationAspect {
                 .lastName(telegramUser.getLastName())
                 .username(telegramUser.getUserName())
                 .registeredAt(LocalDateTime.now())
+                .lastGame(LocalDateTime.now())
                 .build();
         detailsRepo.save(details);
 

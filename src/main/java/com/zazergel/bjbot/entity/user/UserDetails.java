@@ -34,6 +34,9 @@ public class UserDetails {
     @Column(name = "registered_at", nullable = false)
     LocalDateTime registeredAt;
 
+    @Column(name = "last_game")
+    LocalDateTime lastGame;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     User user;

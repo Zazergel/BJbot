@@ -7,6 +7,7 @@ import com.zazergel.bjbot.bot.config.Constants;
 import com.zazergel.bjbot.bot.factory.AnswerMessageFactory;
 import com.zazergel.bjbot.bot.factory.KeyboardFactory;
 import com.zazergel.bjbot.bot.service.manager.MainMenuManager;
+import com.zazergel.bjbot.entity.user.User;
 import com.zazergel.bjbot.entity.user.UserGameStat;
 import com.zazergel.bjbot.repository.StatRepo;
 import com.zazergel.bjbot.repository.UserRepo;
@@ -19,6 +20,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -126,7 +128,9 @@ public class BlackJackGameService {
 
     private void addStats(long chatId, String text) {
         String logText = "User from chatId: " + chatId;
-        UserGameStat stat = userRepo.findById(chatId).orElseThrow().getGameStat();
+        User user = userRepo.findById(chatId).orElseThrow();
+        UserGameStat stat = user.getGameStat();
+        user.getUserDetails().setLastGame(LocalDateTime.now());
         if (text.contains("выиграли!")) {
             if (text.contains("Блэкджек")) {
                 betService.playerBlackJack(chatId);
