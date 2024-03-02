@@ -1,10 +1,8 @@
 package com.zazergel.bjbot.proxy;
 
-import com.zazergel.bjbot.entity.user.UserDetails;
 import com.zazergel.bjbot.entity.user.UserGameStat;
 import com.zazergel.bjbot.entity.user.enums.Action;
 import com.zazergel.bjbot.entity.user.enums.Role;
-import com.zazergel.bjbot.repository.DetailsRepo;
 import com.zazergel.bjbot.repository.StatRepo;
 import com.zazergel.bjbot.repository.UserRepo;
 import lombok.AccessLevel;
@@ -27,13 +25,11 @@ public class UserCreationAspect {
 
     final UserRepo userRepo;
     final StatRepo statRepo;
-    final DetailsRepo detailsRepo;
 
     @Autowired
-    public UserCreationAspect(UserRepo userRepo, StatRepo statRepo, DetailsRepo detailsRepo) {
+    public UserCreationAspect(UserRepo userRepo, StatRepo statRepo) {
         this.userRepo = userRepo;
         this.statRepo = statRepo;
-        this.detailsRepo = detailsRepo;
     }
 
     @Pointcut("execution(* com.zazergel.bjbot.bot.service.command.StartCommand.sendStartAnswer(..))")
@@ -49,20 +45,12 @@ public class UserCreationAspect {
         if (userRepo.existsById(telegramUser.getId())) {
             return joinPoint.proceed();
         }
-        UserDetails details = UserDetails.builder()
-                .firstName(telegramUser.getFirstName())
-                .lastName(telegramUser.getLastName())
-                .username(telegramUser.getUserName())
-                .registeredAt(LocalDateTime.now())
-                .lastGame(LocalDateTime.now())
-                .build();
-        detailsRepo.save(details);
-
         UserGameStat stat = UserGameStat.builder()
                 .wins(0L)
                 .bjWins(0L)
                 .loses(0L)
                 .draws(0L)
+                .lastGame(LocalDateTime.now())
                 .build();
         statRepo.save(stat);
 
@@ -71,8 +59,8 @@ public class UserCreationAspect {
                         .chatId(telegramUser.getId())
                         .action(Action.FREE)
                         .role(Role.USER)
+                        .registeredAt(LocalDateTime.now())
                         .score(1000L)
-                        .userDetails(details)
                         .gameStat(stat)
                         .build();
         userRepo.save(newUser);

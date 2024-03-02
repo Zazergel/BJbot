@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -29,9 +31,8 @@ public class User {
     @Column(name = "score")
     Long score;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "details_id")
-    UserDetails userDetails;
+    @Column(name = "registered_at", nullable = false)
+    LocalDateTime registeredAt;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_stat_id")

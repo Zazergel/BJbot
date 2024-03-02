@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -29,6 +30,8 @@ public class UserGameStat {
     Long bjWins;
     @Column(name = "draws")
     Long draws;
+    @Column(name = "last_game")
+    LocalDateTime lastGame;
 
     @OneToOne
     @JoinColumn(name = "user_id")

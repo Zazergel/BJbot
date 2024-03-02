@@ -93,7 +93,7 @@ public class BetService {
     private void checkUserBalance(long chatId) {
         User user = userRepo.findById(chatId).orElseThrow();
         long userBalance = user.getScore();
-        long daysBetween = ChronoUnit.DAYS.between(user.getUserDetails().getLastGame(), LocalDateTime.now());
+        long daysBetween = ChronoUnit.DAYS.between(user.getGameStat().getLastGame(), LocalDateTime.now());
         if (daysBetween >= 1) {
             log.info(chatId + " get everyDay bonus: " + Constants.EVERYDAY_BONUS);
             user.setScore(userBalance + Constants.EVERYDAY_BONUS);
