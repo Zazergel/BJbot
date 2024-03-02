@@ -6,7 +6,9 @@ import com.zazergel.bjbot.bot.config.Buttons;
 import com.zazergel.bjbot.bot.config.Constants;
 import com.zazergel.bjbot.bot.factory.AnswerMessageFactory;
 import com.zazergel.bjbot.bot.factory.KeyboardFactory;
+import com.zazergel.bjbot.bot.service.manager.ErrorManager;
 import com.zazergel.bjbot.bot.service.manager.MainMenuManager;
+import com.zazergel.bjbot.entity.user.User;
 import com.zazergel.bjbot.entity.user.UserGameStat;
 import com.zazergel.bjbot.repository.StatRepo;
 import com.zazergel.bjbot.repository.UserRepo;
@@ -19,6 +21,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +33,7 @@ public class BlackJackGameService {
     StatRepo statRepo;
     UserRepo userRepo;
     MainMenuManager mainMenuManager;
+    ErrorManager errorManager;
     AnswerMessageFactory messageFactory;
     BetService betService;
     Map<Long, BlackJackGame> gameSession = new HashMap<>();
@@ -38,11 +42,13 @@ public class BlackJackGameService {
     public BlackJackGameService(StatRepo statRepo,
                                 UserRepo userRepo,
                                 MainMenuManager mainMenuManager,
+                                ErrorManager errorManager,
                                 AnswerMessageFactory messageFactory,
                                 BetService betService) {
         this.statRepo = statRepo;
         this.userRepo = userRepo;
         this.mainMenuManager = mainMenuManager;
+        this.errorManager = errorManager;
         this.messageFactory = messageFactory;
         this.betService = betService;
     }
@@ -50,72 +56,27 @@ public class BlackJackGameService {
 
     public BotApiMethod<?> receivedButton(CallbackQuery callbackQuery, Bot bot) {
         String callBackData = callbackQuery.getData();
-        int messageId = callbackQuery.getMessage().getMessageId();
-        long chatId = callbackQuery.getMessage().getChatId();
-        if (!gameSession.containsKey(chatId)) {
-            gameSession.put(chatId, new BlackJackGame());
+        var params = MessageParam.builder()
+                .chatId(callbackQuery.getMessage().getChatId())
+                .messageId(callbackQuery.getMessage().getMessageId())
+                .callbackQuery(callbackQuery)
+                .bot(bot)
+                .build();
+        if (!gameSession.containsKey(params.getChatId())) {
+            gameSession.put(params.getChatId(), new BlackJackGame());
         }
-
         switch (callBackData) {
             case Buttons.BJ_START_BET_BUTTON -> {
-                return betService.chooseStartBet(callbackQuery);
+                return startBetButton(params);
             }
             case Buttons.BJ_START_GAME_BUTTON -> {
-                log.info("The game for: " + chatId + " was start! MessageId: " + messageId);
-                gameSession.put(chatId, new BlackJackGame());
-                BlackJackGame game = gameSession.get(chatId);
-                game.dealInitialCards();
-                StringBuilder sb = new StringBuilder(game.play());
-                if (sb.toString().contains("!")) {
-                    addStats(chatId, sb.toString());
-                    sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
-                    try {
-                        bot.execute(messageFactory
-                                .sendEditMessage(chatId, sb.toString(), messageId, null));
-                    } catch (TelegramApiException e) {
-                        log.error(e.getMessage());
-                    }
-                    gameSession.remove(chatId);
-                    return mainMenuManager.sendAnswer(callbackQuery);
-                } else {
-                    return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
-                            KeyboardFactory.getKeyboardToChoose());
-                }
+                return startGameButton(params);
             }
             case Buttons.BJ_NO_BUTTON -> {
-                BlackJackGame game = gameSession.get(chatId);
-                game.setNext(false);
-                StringBuilder sb = new StringBuilder(game.play());
-                addStats(chatId, sb.toString());
-                sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
-                try {
-                    bot.execute(messageFactory
-                            .sendEditMessage(chatId, sb.toString(), messageId, null));
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
-                gameSession.remove(chatId);
-                return mainMenuManager.sendAnswer(callbackQuery);
+                return noButton(params);
             }
             case Buttons.BJ_TAKE_BUTTON -> {
-                BlackJackGame game = gameSession.get(chatId);
-                game.playerTakeCard();
-                StringBuilder sb = new StringBuilder(game.play());
-                if (sb.toString().contains("!")) {
-                    addStats(chatId, sb.toString());
-                    sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
-                    try {
-                        bot.execute(messageFactory
-                                .sendEditMessage(chatId, sb.toString(), messageId, null));
-                    } catch (TelegramApiException e) {
-                        log.error(e.getMessage());
-                    }
-                    gameSession.remove(chatId);
-                    return mainMenuManager.sendAnswer(callbackQuery);
-                } else {
-                    return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
-                            KeyboardFactory.getKeyboardToChoose());
-                }
+                return takeButton(params);
             }
             default -> {
                 return null;
@@ -123,10 +84,95 @@ public class BlackJackGameService {
         }
     }
 
+    public BotApiMethod<?> startBetButton(MessageParam params) {
+        var chatId = params.getChatId();
+        var callbackQuery = params.getCallbackQuery();
+        if (!userRepo.existsById(chatId)) {
+            return errorManager.sendEditAnswer(callbackQuery);
+        }
+        return betService.chooseStartBet(callbackQuery);
+    }
+
+    public BotApiMethod<?> startGameButton(MessageParam params) {
+        var chatId = params.getChatId();
+        var messageId = params.getMessageId();
+        var callbackQuery = params.getCallbackQuery();
+        var bot = params.getBot();
+
+        log.info("The game for: " + chatId + " was start! MessageId: " + messageId);
+        gameSession.put(chatId, new BlackJackGame());
+        BlackJackGame game = gameSession.get(chatId);
+        game.dealInitialCards();
+        StringBuilder sb = new StringBuilder(game.play());
+        if (sb.toString().contains("!")) {
+            addStats(chatId, sb.toString());
+            sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
+            try {
+                bot.execute(messageFactory
+                        .sendEditMessage(chatId, sb.toString(), messageId, null));
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+            gameSession.remove(chatId);
+            return mainMenuManager.sendAnswer(callbackQuery);
+        } else {
+            return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
+                    KeyboardFactory.getKeyboardToChoose());
+        }
+    }
+
+    public BotApiMethod<?> noButton(MessageParam params) {
+        var chatId = params.getChatId();
+        var messageId = params.getMessageId();
+        var callbackQuery = params.getCallbackQuery();
+        var bot = params.getBot();
+
+        BlackJackGame game = gameSession.get(chatId);
+        game.setNext(false);
+        StringBuilder sb = new StringBuilder(game.play());
+        addStats(chatId, sb.toString());
+        sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
+        try {
+            bot.execute(messageFactory
+                    .sendEditMessage(chatId, sb.toString(), messageId, null));
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+        gameSession.remove(chatId);
+        return mainMenuManager.sendAnswer(callbackQuery);
+    }
+
+    public BotApiMethod<?> takeButton(MessageParam params) {
+        var chatId = params.getChatId();
+        var messageId = params.getMessageId();
+        var callbackQuery = params.getCallbackQuery();
+        var bot = params.getBot();
+
+        BlackJackGame game = gameSession.get(chatId);
+        game.playerTakeCard();
+        StringBuilder sb = new StringBuilder(game.play());
+        if (sb.toString().contains("!")) {
+            addStats(chatId, sb.toString());
+            sb.append(Constants.BALANCE).append(betService.getUserScore(chatId));
+            try {
+                bot.execute(messageFactory
+                        .sendEditMessage(chatId, sb.toString(), messageId, null));
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+            gameSession.remove(chatId);
+            return mainMenuManager.sendAnswer(callbackQuery);
+        } else {
+            return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
+                    KeyboardFactory.getKeyboardToChoose());
+        }
+    }
 
     private void addStats(long chatId, String text) {
         String logText = "User from chatId: " + chatId;
-        UserGameStat stat = userRepo.findById(chatId).orElseThrow().getGameStat();
+        User user = userRepo.findById(chatId).orElseThrow();
+        UserGameStat stat = user.getGameStat();
+        user.getGameStat().setLastGame(LocalDateTime.now());
         if (text.contains("выиграли!")) {
             if (text.contains("Блэкджек")) {
                 betService.playerBlackJack(chatId);

@@ -3,11 +3,13 @@ package com.zazergel.bjbot.blackjack;
 import com.zazergel.bjbot.blackjack.deck.Deck;
 import com.zazergel.bjbot.blackjack.player.Player;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@EqualsAndHashCode
 @Slf4j
 public class BlackJackGame {
     final Deck deck;
