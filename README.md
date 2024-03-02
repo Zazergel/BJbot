@@ -38,7 +38,7 @@
 ## Built With
 
 <p align="left">
-    <img src="https://skillicons.dev/icons?i=java,maven,spring,postgres,hibernate" />
+    <img src="https://skillicons.dev/icons?i=java,maven,spring,postgres,hibernate,docker" />
 </p>
 
 ## Authors
