@@ -6,7 +6,6 @@ import com.zazergel.bjbot.bot.config.Buttons;
 import com.zazergel.bjbot.bot.config.Constants;
 import com.zazergel.bjbot.bot.factory.AnswerMessageFactory;
 import com.zazergel.bjbot.bot.factory.KeyboardFactory;
-import com.zazergel.bjbot.bot.service.manager.ErrorManager;
 import com.zazergel.bjbot.bot.service.manager.MainMenuManager;
 import com.zazergel.bjbot.entity.user.User;
 import com.zazergel.bjbot.entity.user.UserGameStat;
@@ -33,7 +32,6 @@ public class BlackJackGameService {
     StatRepo statRepo;
     UserRepo userRepo;
     MainMenuManager mainMenuManager;
-    ErrorManager errorManager;
     AnswerMessageFactory messageFactory;
     BetService betService;
     Map<Long, BlackJackGame> gameSession = new HashMap<>();
@@ -42,13 +40,11 @@ public class BlackJackGameService {
     public BlackJackGameService(StatRepo statRepo,
                                 UserRepo userRepo,
                                 MainMenuManager mainMenuManager,
-                                ErrorManager errorManager,
                                 AnswerMessageFactory messageFactory,
                                 BetService betService) {
         this.statRepo = statRepo;
         this.userRepo = userRepo;
         this.mainMenuManager = mainMenuManager;
-        this.errorManager = errorManager;
         this.messageFactory = messageFactory;
         this.betService = betService;
     }
@@ -85,11 +81,7 @@ public class BlackJackGameService {
     }
 
     public BotApiMethod<?> startBetButton(MessageParam params) {
-        var chatId = params.getChatId();
         var callbackQuery = params.getCallbackQuery();
-        if (!userRepo.existsById(chatId)) {
-            return errorManager.sendEditAnswer(callbackQuery);
-        }
         return betService.chooseStartBet(callbackQuery);
     }
 
