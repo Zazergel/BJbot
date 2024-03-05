@@ -3,7 +3,7 @@
    <img src='https://i.postimg.cc/ydmXp5fY/Bj-Bot-logo.png' border='0' weight=300 height=300 alt='Bj-Bot-logo'/></a>
   </a>
   <p align="center">
-    https://t.me/BJ_Cardgame_bot (offline)
+    https://t.me/BJ_Cardgame_bot (online)
     <br>
     Телеграм бот для игры в BlackJack
     <br/>
