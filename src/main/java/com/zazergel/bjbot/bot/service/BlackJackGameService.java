@@ -107,6 +107,9 @@ public class BlackJackGameService {
             }
             gameSession.remove(chatId);
             return mainMenuManager.sendAnswer(callbackQuery);
+        } else if (sb.toString().contains("ставку")) {
+            return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
+                    KeyboardFactory.getKeyboardToChooseWithDoubleOption());
         } else {
             return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
                     KeyboardFactory.getKeyboardToChoose());
@@ -154,6 +157,9 @@ public class BlackJackGameService {
             }
             gameSession.remove(chatId);
             return mainMenuManager.sendAnswer(callbackQuery);
+        } else if (sb.toString().contains("ставку")) {
+            return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
+                    KeyboardFactory.getKeyboardToChooseWithDoubleOption());
         } else {
             return messageFactory.sendEditMessage(chatId, sb.toString(), messageId,
                     KeyboardFactory.getKeyboardToChoose());
@@ -183,6 +189,7 @@ public class BlackJackGameService {
         }
         statRepo.save(stat);
     }
+
 }
 
 

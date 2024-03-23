@@ -22,13 +22,13 @@ import java.util.Map;
 
 @Component
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BetService {
 
-    UserRepo userRepo;
-    AnswerMessageFactory messageFactory;
+    final UserRepo userRepo;
+    final AnswerMessageFactory messageFactory;
 
-    Map<Long, Long> userBets = new HashMap<>();
+    final Map<Long, Long> userBets = new HashMap<>();
 
     @Autowired
     public BetService(UserRepo userRepo, AnswerMessageFactory messageFactory) {
