@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zazergel</groupId>
     <artifactId>BJbot</artifactId>
-    <version>3.3</version>
+    <version>3.4.1</version>
     <name>BJbot</name>
     <description>BJbot for telegram</description>
 

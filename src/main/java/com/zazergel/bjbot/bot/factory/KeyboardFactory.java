@@ -63,7 +63,7 @@ public class KeyboardFactory {
         return markupInLine;
     }
 
-    public static InlineKeyboardMarkup getKeyboardToChoose() {
+    public static InlineKeyboardMarkup getKeyboardToChooseWithDoubleOption() {
         var markupInLine = new InlineKeyboardMarkup();
 
         var takeButton = new InlineKeyboardButton();
@@ -71,7 +71,7 @@ public class KeyboardFactory {
         takeButton.setCallbackData(Buttons.BJ_TAKE_BUTTON);
 
         var noButton = new InlineKeyboardButton();
-        noButton.setText("❌Пас");
+        noButton.setText("❌Нет");
         noButton.setCallbackData(Buttons.BJ_NO_BUTTON);
 
         var changeBetButton = new InlineKeyboardButton();
@@ -80,6 +80,24 @@ public class KeyboardFactory {
 
 
         List<InlineKeyboardButton> rowInLine = List.of(takeButton, changeBetButton, noButton);
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);
+        markupInLine.setKeyboard(rowsInLine);
+        return markupInLine;
+    }
+
+    public static InlineKeyboardMarkup getKeyboardToChoose() {
+        var markupInLine = new InlineKeyboardMarkup();
+
+        var takeButton = new InlineKeyboardButton();
+        takeButton.setText("✅Беру");
+        takeButton.setCallbackData(Buttons.BJ_TAKE_BUTTON);
+
+        var noButton = new InlineKeyboardButton();
+        noButton.setText("❌Нет");
+        noButton.setCallbackData(Buttons.BJ_NO_BUTTON);
+
+
+        List<InlineKeyboardButton> rowInLine = List.of(takeButton, noButton);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInLine);
         markupInLine.setKeyboard(rowsInLine);
         return markupInLine;

@@ -44,8 +44,14 @@ public class BlackJackGame {
             return showHandsOnEndGame() + "\n\nУ меня <b>Блэкджек!</b> Вы проиграли!";
         }
         // Игрок может взять карту, если у него меньше 21 очков
+        // Игрок также может удвоить ставку, если у него менее 16 очков
         if (player.getHand().getScore() < 21 && next) {
-            return showHands() + "\n\nБерете еще карту?";
+            if (player.getHand().getScore() < 16){
+                return showHands() + "\n\nБерете еще карту? Или желаете удвоить ставку?";
+            } else {
+                return showHands() + "\n\nБерете еще карту?";
+            }
+
         }
         // Дилер берет карту, если у него меньше, чем у игрока, но не более 17
         if (player.getHand().getScore() < 21) {
