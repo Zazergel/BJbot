@@ -12,7 +12,7 @@
   </p>
 <div class="myWrapper" markdown="1" align="center">
   
-  ![Downloads](https://img.shields.io/github/downloads/Zazergel/bjbot/total) ![Contributors](https://img.shields.io/github/contributors/Zazergel/bjbot?color=dark-green) 
+  ![Contributors](https://img.shields.io/github/contributors/Zazergel/bjbot?color=dark-green) 
 </div>
 
 
