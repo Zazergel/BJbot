@@ -1,6 +1,7 @@
 package com.zazergel.bjbot.bot.service.handler;
 
 import com.zazergel.bjbot.bot.Bot;
+import com.zazergel.bjbot.bot.config.Buttons;
 import com.zazergel.bjbot.bot.service.BetService;
 import com.zazergel.bjbot.bot.service.BlackJackGameService;
 import com.zazergel.bjbot.bot.service.manager.ErrorManager;
@@ -54,22 +55,22 @@ public class CallbackQueryHandler {
         } else {
             String callBackData = callbackQuery.getData();
 
-            if (callBackData.contains("MAIN_MENU")) {
+            if (callBackData.contains(Buttons.MAIN_MENU_BUTTON)) {
                 return mainMenuManager.sendEditAnswer(callbackQuery);
             }
-            if (callBackData.contains("BET_UP")) {
+            if (callBackData.contains(Buttons.BET_UP_BUTTON)) {
                 return betService.userBetDouble(callbackQuery);
             }
-            if (callBackData.contains("10") || callBackData.contains("50") || callBackData.contains("100")) {
+            if (callBackData.contains(Buttons.BJ_BET_10) || callBackData.contains(Buttons.BJ_BET_50) || callBackData.contains(Buttons.BJ_BET_100)) {
                 return betService.takeUserBet(callbackQuery, bot);
             }
             if (callBackData.contains("BJ")) {
                 return blackJackGameService.receivedButton(callbackQuery, bot);
             }
-            if (callBackData.contains("RULES")) {
+            if (callBackData.contains(Buttons.RULES_BUTTON)) {
                 return rulesManager.sendEditAnswer(callbackQuery);
             }
-            if (callBackData.contains("STAT")) {
+            if (callBackData.contains(Buttons.STAT_BUTTON)) {
                 return statManager.sendEditAnswer(callbackQuery);
             } else {
                 log.info("Unsupported callbackData: " + callBackData);

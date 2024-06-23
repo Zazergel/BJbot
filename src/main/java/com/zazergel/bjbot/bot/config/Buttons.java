@@ -22,7 +22,6 @@ public class Buttons {
     public static final String BJ_NO_BUTTON = "BJ_NO";
 
 
-
     private Buttons() {
     }
 }
