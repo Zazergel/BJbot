@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 @Component
 public class StartCommand {
 
-    public SendMessage sendStartAnswer(Message message) {
+    public SendMessage sendAnswer(Message message) {
         return SendMessage.builder()
                 .chatId(message.getChatId())
                 .text("Здравствуйте, добро пожаловать.\n\n <b>Главное меню:</b>")

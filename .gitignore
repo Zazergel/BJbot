@@ -2,6 +2,7 @@ HELP.md
 mvnw
 mvnw.cmd
 README.md
+docker-compose.yml
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

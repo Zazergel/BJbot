@@ -30,18 +30,23 @@ public class CommandHandler {
 
     public BotApiMethod<?> answer(Message message, Bot bot) {
         long chatId = message.getChatId();
+        String username = message.getChat().getUserName();
         if (message.getText().equals("/start")) {
-            log.info("User: " + message.getChat().getUserName() + " was init for chatId: " + chatId);
-            try {
-                bot.execute(messageFactory.deleteMessage(chatId, message.getMessageId()));
-            } catch (TelegramApiException e) {
-                log.error(e.getMessage());
-            }
-            return startCommand.sendStartAnswer(message);
+            log.info("User: " + username + " was init for chatId: " + chatId);
+            delPrevMessage(chatId, bot, message);
+            return startCommand.sendAnswer(message);
         } else {
             log.info("Unsupported command: " + message.getText()
                      + " from user: " + message.getChat().getUserName());
             return null;
+        }
+    }
+
+    private void delPrevMessage(Long chatId, Bot bot, Message message) {
+        try {
+            bot.execute(messageFactory.deleteMessage(chatId, message.getMessageId()));
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
     }
 }
